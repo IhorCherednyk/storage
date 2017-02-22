@@ -48,3 +48,75 @@ AppAsset::register($this);
     <?= Html::csrfMetaTags() ?>
     <title><?= Html::encode($this->title) ?></title>
     <?php $this->head() ?>
+
+
+и добовляем закрывающие теги  по шаблону
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+Если у нас подключаются скрипты которые треубуют Ie8 и ниже то мы создаем новвый aseet 
+
+
+<?php
+
+/**
+ * @link http://www.yiiframework.com/
+ * @copyright Copyright (c) 2008 Yii Software LLC
+ * @license http://www.yiiframework.com/license/
+ */
+
+namespace app\assets;
+
+use yii\web\AssetBundle;
+
+/**
+ * @author Qiang Xue <qiang.xue@gmail.com>
+ * @since 2.0
+ */
+class ltAppAsset extends AssetBundle { // не забыть поменять иммя класса
+
+    public $basePath = '@webroot';
+    public $baseUrl = '@web';
+    public $js = [
+        'js/html5shiv.js',
+        'js/respond.min.js',
+    ];
+    public $jsOptions = [
+        'condition' => 'lte IE9', // ЭТО УСЛОВИЕ
+        'position' => \yii\web\View::POS_HEAD // ЭТО ПОЗИЦИЯ ГДЕ ОН ПОДКЛЮЧИТСЯ
+    ];
+
+}
+
+И подключаем его в наш шаблон
+
+или 2 вариант подключить напрямую в шаблон 
+
+<?php
+//     $this->registerJsFile('js/html5shiv.js', ['position' => \yii\web\View::POS_HEAD, 'condition' => 'lte IE9']);
+//     $this->registerJsFile('js/respond.min.js', ['position' => \yii\web\View::POS_HEAD, 'condition' => 'lte IE9']);
+?>
+
+
+-----------------------------------------------------------------------------------------------------------------------------------
+
+
+Далее выносим контент в виды
+
+с помощью 
+
+<?= $content ;?>
+
+мы выводим view в соответствующий layaout
+
+
+---------------------
+Подключение layout для отдельных страниц
+
+public $layout = 'aa';
+
+    public function actionIndex()
+    {
+        $this->layout = 'aa';
+        return $this->render('index');
+    }

@@ -8,7 +8,7 @@
 
 body {
   font-family: 'Roboto', sans-serif;
-  background:;
+  background:#fff;
   position: relative;
   font-weight:400px;
 }
@@ -899,7 +899,7 @@ h2.title {
   transition: height 500ms ease 0s;
   width: 100%;
   display: block;
-  opacity:;
+  opacity:1;
 }
 
 .single-products:hover .product-overlay {
@@ -2519,5 +2519,10 @@ h2.title {
 .contact-info .social-networks ul li a:hover{
   color: #FE980F;
 }
-
+.panel-default > .panel-heading .badge {
+    background-color: #fff;
+}
+.panel-default > .panel-heading .badge i{
+    color: #000;
+}
 
