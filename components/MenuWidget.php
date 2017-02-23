@@ -49,7 +49,7 @@ class MenuWidget extends Widget {
     protected function getMenuHtml($tree) {
         $str = '';
         foreach ($tree as $category) {
-             D($category);
+            
             $str .= $this->catToTemplate($category);
         }
         
