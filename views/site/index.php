@@ -1,4 +1,15 @@
+<?php 
+    use app\components\MenuWidget;
+?>
+
+
+
+
+
 <section id="slider"><!--slider-->
+    <ul class="catalog">   
+        <?= MenuWidget::widget(['tpl' => 'menu'])?>
+    </ul> 
     <div class="container">
         <div class="row">
             <div class="col-sm-12">
@@ -69,6 +80,7 @@
             <div class="col-sm-3">
                 <div class="left-sidebar">
                     <h2>Category</h2>
+                    
                     <div class="panel-group category-products" id="accordian"><!--category-productsr-->
                         <div class="panel panel-default">
                             <div class="panel-heading">

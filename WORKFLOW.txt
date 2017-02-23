@@ -120,3 +120,222 @@ public $layout = 'aa';
         $this->layout = 'aa';
         return $this->render('index');
     }
+
+
+-------------------------------------------------------------------------------------------------------
+задаем отноисительные пуши url картинкам
+
+1) можно добавить / слеш в начале картинки 
+
+
+
+----------------------------------------------------------------------------------------------------------
+Содаем модели для таблицы 
+у нас есть две таблицы которые связзаные между собой
+
+создаем две модели таблицы 
+где указываем ActiveRecord расширяемый класс для модели в бд
+
+в классе таблицы определяем к какой таблице мы будем обращаться
+
+public function getProducts(){
+        return $this->hasMany(Product::className(), ['category_id' => 'id']);
+    }
+говорит о том что наша таблица категории будет иметь в себе продукты , также hasMany гвоорит о том что у одной категории может быть множество продуктов
+Product::className() - вызываем модель подключающейся таблицы
+(Category::className(), ['id' => 'category_id']) - указует на то что в таблице категорий поле 'id' будет свзяаано с полем 'category_id' в таблице категорий
+
+<?php
+
+namespace app\models;
+use yii\db\ActiveRecord;
+
+class Category  extends ActiveRecord{
+    
+    public static function tableName(){
+        return 'category';  // указывает таблицу которую мы будем использовать
+    }
+    public function getProducts(){
+        return $this->hasMany(Product::className(), ['category_id' => 'id']);
+    }
+}
+
+<?php
+
+namespace app\models;
+use yii\db\ActiveRecord;
+
+class Product  extends ActiveRecord{
+    
+    public static function tableName(){
+        return 'product';  // указывает таблицу которую мы будем использовать
+    }
+    public function getCategory(){
+        return $this->hasOne(Category::className(), ['id' => 'category_id']);
+    }
+}
+
+
+дальше идем в config db.php
+---------------------------------------------------------------------------------------------------------------------------
+создание виджета
+
+создаем папку components
+в ней виджет с названием виджета 
+и в нем
+
+
+<?php
+
+namespace app\components;
+
+use yii\base\Widget;
+
+class MenuWidget extends Widget{
+    
+    public $templ; // указываем тот ключ который мы указуем в виде  <?= MenuWidget::widget(['templ' => 'menu'])
+    
+    public function init(){  // создаем инит функцию
+        parent::init();  // обязательный метод
+        if($this->templ === null){ //Проверяем если в наш  templ ничего не пришло то по умолчанию он menu
+            $this->templ = 'menu';
+        }
+        $this->templ .= '.php'; // иначе задаем то что пришло что то пришло например <?= MenuWidget::widget(['templ' => 'blabla'])
+    }
+    
+    public function run(){
+        return $this->templ; // Поитогу возвращаем то что нам пришло <?= MenuWidget::widget(['templ' => 'blabla'])
+    }
+    
+}
+
+а в видах используем 
+ <?= MenuWidget::widget(['templ' => 'menu'])?> не забывая про то что класс надо обявить
+
+
+для создания многоуровнего меню которое берется из базы мы дополним наш виджет
+
+
+
+<?php
+
+namespace app\components;
+
+use yii\base\Widget;
+use app\models\Category; // покдлючаем модель таблицы для выборки данных
+
+class MenuWidget extends Widget {
+
+    public $templ; // указываем тот ключ который мы указуем в виде  <?= MenuWidget::widget(['templ' => 'menu'])
+    public $data; // свойства хранения записей категории из базы данных
+    public $tree; // хранится результат работы функции в который строится масив дерева
+    public $menuHtml; // готовый html в заисимости от шаблона $this->templ
+
+    public function init() {  // создаем инит функцию
+        parent::init();  // обязательный метод
+        if ($this->templ === null) { //Проверяем если в наш  templ ничего не пришло то по умолчанию он menu
+            $this->templ = 'menu';
+        }
+        $this->templ .= '.php'; // иначе задаем то что пришло что то пришло например <?= MenuWidget::widget(['templ' => 'blabla'])
+    }
+
+    public function run() {
+        $this->data = Category::find()->indexBy('id')->asArray()->all(); // sql запрос к базе  запрос гвороит (верни мне массивы массивов где (indexBy('id') - ключи масива будут совпадать с индикаторами id ))
+        $this->tree = $this->getTree();
+        
+        return $this->templ; // Поитогу возвращаем то что нам пришло <?= MenuWidget::widget(['templ' => 'blabla'])
+    }
+
+    protected function getTree(){ // Функция берет и свзяывает как дерево данные которые мы получили из таблицы 
+        $tree = [];
+        foreach ($this->data as $id=>&$node) {
+            if (!$node['parent_id'])
+                $tree[$id] = &$node;
+            else
+                $this->data[$node['parent_id']]['childs'][$node['id']] = &$node;
+        }
+        return $tree;
+    }
+}
+
+и далее создаим для него два файла в папке компонентов и назовем их menu.php select.php
+в них создадим модель html которая будет передоваться в функцию 
+menu.php
+<li>
+    <a href="">
+        <?= $category['name']?>
+        <?php if( isset($category['childs']) ): ?>
+            <span class="badge pull-right"><i class="fa fa-plus"></i></span>
+        <?php endif;?>
+    </a>
+    <?php if( isset($category['childs']) ): ?>
+        <ul>
+            <?= $this->getMenuHtml($category['childs'])?>
+        </ul>
+    <?php endif;?>
+</li>
+
+
+а сам видже выгядит так 
+
+<?php
+
+namespace app\components;
+
+use yii\base\Widget;
+use app\models\Category; // покдлючаем модель таблицы для выборки данных
+
+class MenuWidget extends Widget {
+
+    public $tpl; // указываем тот ключ который мы указуем в виде  <?= MenuWidget::widget(['tpl' => 'menu'])
+    public $data; // свойства хранения записей категории из базы данных
+    public $tree; // хранится результат работы функции в который строится масив дерева
+    public $menuHtml; // готовый html в заисимости от шаблона $this->tpl
+
+    public function init() {  // создаем инит функцию
+        parent::init();  // обязательный метод
+        if ($this->tpl === null) { //Проверяем если в наш  tpl ничего не пришло то по умолчанию он menu
+            $this->tpl = 'menu';
+        }
+        $this->tpl .= '.php'; // иначе задаем то что пришло что то пришло например <?= MenuWidget::widget(['tpl' => 'blabla'])
+    }
+
+    public function run() {
+        $this->data = Category::find()->indexBy('id')->asArray()->all(); // sql запрос к базе  запрос гвороит (верни мне массивы массивов где (indexBy('id') - ключи масива будут совпадать с индикаторами id ))
+        $this->tree = $this->getTree(); // создаем дерево масивов
+        
+        $this->menuHtml = $this->getMenuHtml($this->tree);
+        
+        return $this->menuHtml; // Поитогу возвращаем то что нам пришло <?= MenuWidget::widget(['tpl' => 'blabla'])
+        
+    }
+
+    protected function getTree() { // Функция берет и свзяывает как дерево данные которые мы получили из таблицы 
+        $tree = [];
+        foreach ($this->data as $id => &$node) {
+            if (!$node['parent_id'])
+                $tree[$id] = &$node;
+            else
+                $this->data[$node['parent_id']]['childs'][$node['id']] = &$node;
+        }
+        
+        return $tree;
+    }
+
+    protected function getMenuHtml($tree) {
+        $str = '';
+        foreach ($tree as $category) {
+            $str .= $this->catToTemplate($category);
+        }
+        
+        return $str;
+    }
+
+    protected function catToTemplate($category) {
+        ob_start(); // используем буферизацию которая записует html 
+        include __DIR__ . '/menu_tpl/' . $this->tpl;
+        
+        return ob_get_clean(); // этот метод возвращает забуферизированый html
+    }
+
+}
