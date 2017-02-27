@@ -1,182 +1,5 @@
-1. после того как мы сделали ЧПУ 
-
-Переносим все js css img fonts в папку web
-
-Переименовываем layaout main.php в _main.php и создаем новый main.php
-
-далее шаблон верстки переносим в main.php  и подключаем стили в asset
-    public $depends = [
-        'yii\web\YiiAsset',
-        'yii\bootstrap\BootstrapPluginAsset',
-    ];
-подключает jquery bootstrap.min.css bootsrap.js так что если стоят зависимости то не нужено подключать еще раз в ассетах
 
 
----------------------------------------------------------------------------------------------------------------------------------------------
-Добовляем метки в шаблон
-<?php
-/* @var $this \yii\web\View */
-/* @var $content string */
-
-use yii\helpers\Html;
-use yii\bootstrap\Nav;
-use yii\bootstrap\NavBar;
-use yii\widgets\Breadcrumbs;
-use app\assets\AppAsset;
-
-AppAsset::register($this);
-?>
-<?php $this->beginPage() ?>
-
-
-
-потом 
-
-<html lang="<?= Yii::$app->language ?>">
-и в config>web
-Добовляем 
-
-'basePath' => dirname(__DIR__),
-    'bootstrap' => ['log'],
-    'language' => 'ru-Ru', -- вот это значение
-
-
-в <head> помещяем 
-
-<meta charset="<?= Yii::$app->charset ?>">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <?= Html::csrfMetaTags() ?>
-    <title><?= Html::encode($this->title) ?></title>
-    <?php $this->head() ?>
-
-
-и добовляем закрывающие теги  по шаблону
-
-----------------------------------------------------------------------------------------------------------------------------------------
-
-Если у нас подключаются скрипты которые треубуют Ie8 и ниже то мы создаем новвый aseet 
-
-
-<?php
-
-/**
- * @link http://www.yiiframework.com/
- * @copyright Copyright (c) 2008 Yii Software LLC
- * @license http://www.yiiframework.com/license/
- */
-
-namespace app\assets;
-
-use yii\web\AssetBundle;
-
-/**
- * @author Qiang Xue <qiang.xue@gmail.com>
- * @since 2.0
- */
-class ltAppAsset extends AssetBundle { // не забыть поменять иммя класса
-
-    public $basePath = '@webroot';
-    public $baseUrl = '@web';
-    public $js = [
-        'js/html5shiv.js',
-        'js/respond.min.js',
-    ];
-    public $jsOptions = [
-        'condition' => 'lte IE9', // ЭТО УСЛОВИЕ
-        'position' => \yii\web\View::POS_HEAD // ЭТО ПОЗИЦИЯ ГДЕ ОН ПОДКЛЮЧИТСЯ
-    ];
-
-}
-
-И подключаем его в наш шаблон
-
-или 2 вариант подключить напрямую в шаблон 
-
-<?php
-//     $this->registerJsFile('js/html5shiv.js', ['position' => \yii\web\View::POS_HEAD, 'condition' => 'lte IE9']);
-//     $this->registerJsFile('js/respond.min.js', ['position' => \yii\web\View::POS_HEAD, 'condition' => 'lte IE9']);
-?>
-
-
------------------------------------------------------------------------------------------------------------------------------------
-
-
-Далее выносим контент в виды
-
-с помощью 
-
-<?= $content ;?>
-
-мы выводим view в соответствующий layaout
-
-
----------------------
-Подключение layout для отдельных страниц
-
-public $layout = 'aa';
-
-    public function actionIndex()
-    {
-        $this->layout = 'aa';
-        return $this->render('index');
-    }
-
-
--------------------------------------------------------------------------------------------------------
-задаем отноисительные пуши url картинкам
-
-1) можно добавить / слеш в начале картинки 
-
-
-
-----------------------------------------------------------------------------------------------------------
-Содаем модели для таблицы 
-у нас есть две таблицы которые связзаные между собой
-
-создаем две модели таблицы 
-где указываем ActiveRecord расширяемый класс для модели в бд
-
-в классе таблицы определяем к какой таблице мы будем обращаться
-
-public function getProducts(){
-        return $this->hasMany(Product::className(), ['category_id' => 'id']);
-    }
-говорит о том что наша таблица категории будет иметь в себе продукты , также hasMany гвоорит о том что у одной категории может быть множество продуктов
-Product::className() - вызываем модель подключающейся таблицы
-(Category::className(), ['id' => 'category_id']) - указует на то что в таблице категорий поле 'id' будет свзяаано с полем 'category_id' в таблице категорий
-
-<?php
-
-namespace app\models;
-use yii\db\ActiveRecord;
-
-class Category  extends ActiveRecord{
-    
-    public static function tableName(){
-        return 'category';  // указывает таблицу которую мы будем использовать
-    }
-    public function getProducts(){
-        return $this->hasMany(Product::className(), ['category_id' => 'id']);
-    }
-}
-
-<?php
-
-namespace app\models;
-use yii\db\ActiveRecord;
-
-class Product  extends ActiveRecord{
-    
-    public static function tableName(){
-        return 'product';  // указывает таблицу которую мы будем использовать
-    }
-    public function getCategory(){
-        return $this->hasOne(Category::className(), ['id' => 'category_id']);
-    }
-}
-
-
-дальше идем в config db.php
 ---------------------------------------------------------------------------------------------------------------------------
 создание виджета
 
@@ -192,7 +15,7 @@ namespace app\components;
 use yii\base\Widget;
 
 class MenuWidget extends Widget{
-    
+
     public $templ; // указываем тот ключ который мы указуем в виде  <?= MenuWidget::widget(['templ' => 'menu'])
     
     public function init(){  // создаем инит функцию
@@ -210,7 +33,7 @@ class MenuWidget extends Widget{
 }
 
 а в видах используем 
- <?= MenuWidget::widget(['templ' => 'menu'])?> не забывая про то что класс надо обявить
+<?= MenuWidget::widget(['templ' => 'menu'])?> не забывая про то что класс надо обявить
 
 
 для создания многоуровнего меню которое берется из базы мы дополним наш виджет
@@ -341,3 +164,303 @@ class MenuWidget extends Widget {
 }
 
 далее подключим файлы либы 
+
+--------------------------------------------------------------------------------------------------------------------------------------------------
+кеширование данных
+cash хранить в папке runtnime
+public function run() {
+
+    $menu = Yii::$app->cache->get('menu');
+    if($menu) return $menu;
+
+        $this->data = Category::find()->indexBy('id')->asArray()->all(); // sql запрос к базе  запрос гвороит (верни мне массивы массивов где (indexBy('id') - ключи масива будут совпадать с индикаторами id ))
+        $this->tree = $this->getTree(); // создаем дерево масивов
+        $this->menuHtml = $this->getMenuHtml($this->tree);
+        
+        Yii::$app->cache->set('menu', $this->menuHtml, 60);
+        return $this->menuHtml; // Поитогу возвращаем то что нам пришло <?= MenuWidget::widget(['tpl' => 'blabla'])
+        
+        
+
+    }
+
+    в этой функции мы первым делом проверям если у нас что то в кеше 
+    $menu = Yii::$app->cache->get('menu');
+    if($menu) return $menu;
+
+    если да то сработает return если нет то мы будем создавать кеш 
+    где 'menu' это произвольный ключ , $this->menuHtml - параметр котоырй мы запискуем, 60 - вермя в секундах
+
+    Yii::$app->cache->set('menu', $this->menuHtml, 60);
+
+
+-________________________________________________________________________________-__---------_---_____-----_
+
+                Создаем контроллеры
+                один создаем общий для всех 
+                <?php
+
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+
+namespace app\controllers;
+
+use yii\web\Controller;
+
+/**
+ * Description of AppController
+ *
+ * @author Anastasiya
+ */
+class AppController extends Controller{
+}
+от которого будут наследовать все остальные
+
+
+и создаем нужный контроллер который уже наследуют от AppController 
+
+
+<?php
+
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+
+namespace app\controllers;
+use app\models\Category;
+use app\models\Product;
+use Yii;
+/**
+ * Description of CategoryController
+ *
+ * @author Anastasiya
+ */
+class CategoryController extends AppController{
+    //put your code here
+}
+
+----------------------------------------------------------------------------------------------------
+получаем в контроллере данные из бд
+
+
+
+
+
+
+
+--------------------------------------------------------------------------------------------------------
+для продуктов категорий мы создавали в виджете ссылку которая ведет на  контрорллер категорий
+потом мы создали 'category/<id:\d+>' => 'category/view', правило что любой переход будет ссылаться на контролер категорий wiew
+создание ссылок
+<a href="<?= \yii\helpers\Url::to(['category/view', 'id' => $category['id']]) ?>">  создаем ссылку указуем куда она ведет в
+   контроллер category  вид view
+   дальше (по желанию) указуем как она будет показываться
+
+
+   'db' => require(__DIR__ . '/db.php'),
+   'urlManager' => [
+   'enablePrettyUrl' => true,
+   'showScriptName' => false,
+   'rules' => [
+   'category/<id:\d+>' => 'category/view', // здесь определяется как будет выглядеть наша ссылка
+   ],
+   ],
+
+
+   дальше в контроллер поскольку мы передаем в сыллке 'id' => $category['id']]  мы получим его через гед создав подходязий action в контроллере
+
+   public function actionView($id){
+   $id = Yii::$app->request->get('id');
+   D($id);
+   $products = Product::find()->where(['category_id' => $id])->all();
+   return $this->render('view', compact('products'));
+}
+
+
+---------------------------------------------------------------------------------------------------------------------------------------
+созаем метатеги 
+
+в главном контроллере определяем метод 
+
+
+class AppController extends Controller {
+
+protected function setMeta($title = null, $keywords = null, $description = null) {
+$this->view->title = $title;
+$this->view->registerMetaTag(['name' => 'keywords', 'content' => "$keywords"]);
+$this->view->registerMetaTag(['name' => 'description', 'content' => "$description"]);
+}
+
+}
+
+и далее в основном контроллере вызываем этот метод
+
+public function actionIndex(){
+$hits = Product::find()->where(['hit' => '1'])->limit(6)->all();
+$this->setMeta('E-SHOPPER');
+return $this->render('index', compact('hits'));
+}
+
+
+а если получить что то определенное то 
+
+public function actionView($id){
+$id = Yii::$app->request->get('id');
+$products = Product::find()->where(['category_id' => $id])->all();
+
+/....///здесь мы ее используем
+$category = Category::findOne($id);
+$this->setMeta('E-SHOPPER | ' . $category->name, $category->keywords, $category->description);
+
+
+return $this->render('view', compact('products', 'category'));
+}
+
+
+
+--------------------------------------------------------------------------------------------------------------------------------------------
+добавляем ссылку на главную
+<a href="<?= Url::home()?>">
+    <?= Html::img("@web/images/home/logo.png", ['alt' => 'logo'])?>    
+</a>
+
+--------------------------------------------------------------------------------------------------------------------------------------------
+Пагинация
+
+в контролер импортируем класс 
+
+use yii\data\Pagination;
+
+
+далее вконтроллере: мы получаем обьект запроса
+$query = Product::find()->where(['category_id' => $id]);
+после чего мы считаем количество записей 'totalCount' => $query->count()
+устанавливаем число записей выводимых на странице 'pageSize' => 
+
+$pages = new Pagination(['totalCount' => $query->count(), 'pageSize' => 3, 'forcePageParam' => false, 'pageSizeParam' => false]);
+
+далее мы задаем параметры для пагинации
+создаем обьект $products 
+говорит с какой записи начинать выборку  - $query->offset($pages->offset)
+берем лимит который мы передали в $pages --  limit($pages->limit)
+и выбираем все записи из нашего запроса
+$products = $query->offset($pages->offset)->limit($pages->limit)->all();
+
+
+
+public function actionView($id) {
+$id = Yii::$app->request->get('id');
+
+/// Начало создания пагинации 
+$query = Product::find()->where(['category_id' => $id]);
+$pages = new Pagination(['totalCount' => $query->count(), 'pageSize' => 3, 'forcePageParam' => false, 'pageSizeParam' => false]);
+$products = $query->offset($pages->offset)->limit($pages->limit)->all();
+/// Конец создания пагинации 
+
+
+$category = Category::findOne($id);
+$this->setMeta('E-SHOPPER | ' . $category->name, $category->keywords, $category->description);
+
+return $this->render('view', compact('products', 'pages', 'category'));
+}
+
+
+
+Далее переходим в виды импортируем класс
+use yii\widgets\LinkPager;
+
+и выводим пагинацию 
+
+<?php
+echo LinkPager::widget([
+    'pagination' => $pages,
+    ]);
+    ?>
+
+    ЧПУ для пагинации
+    в контроллере где мы создаем экземпляр класаа 
+    $pages = new Pagination(['totalCount' => $query->count(), 'pageSize' => 3, 'forcePageParam' => false, 'pageSizeParam' => false]);
+    'forcePageParam' => false, 'pageSizeParam' => false - эти два свойства  отключают 'per-page' в url и убирает с первой страницы Get параметр но на остальных он остается
+    следовательно нам надо пойти в rules 
+
+    'urlManager' => [
+    'enablePrettyUrl' => true,
+    'showScriptName' => false,
+    'rules' => [
+
+    'category/<id:\d+>/page/<page:\d+>' => 'category/view', // Вот это свойство для чпу пагинации
+
+    'category/<id:\d+>' => 'category/view',
+    ],
+    ],
+
+
+    -------------------------------------------------------------------------------------------------------------------------------------
+    обработка ошибок
+    в контролере мы проверям если категории которую мы получаем не существует то мы вернем 404 страницу
+    $category = Category::findOne($id);
+    if (empty($category))
+    throw new \yii\web\HttpException(404, 'Такой категории нет');
+
+
+    в web.php
+    'errorHandler' => [
+    'errorAction' => 'site/error',
+    ],
+    отвечает за вид ошибки
+
+    + мы в этом виде получаем обьеки $exeption который содержит всеб много параметров
+
+
+
+    public function actionView($id) {
+    $id = Yii::$app->request->get('id');
+
+    $category = Category::findOne($id);
+    if (empty($category))
+    throw new \yii\web\HttpException(404, 'Такой категории нет');
+
+    $query = Product::find()->where(['category_id' => $id]);
+    $pages = new Pagination(['totalCount' => $query->count(), 'pageSize' => 3, 'forcePageParam' => false, 'pageSizeParam' => false]);
+
+    $products = $query->offset($pages->offset)->limit($pages->limit)->all();
+
+
+    $this->setMeta('E-SHOPPER | ' . $category->name, $category->keywords, $category->description);
+
+    return $this->render('view', compact('products', 'pages', 'category'));
+}row new \yii\web\HttpException(404, 'Такой категории нет');
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+Поиск
+Создем форму в которой action <?= \yii\helpers\Url::to(['category/search']) ?> ведет туда где показуется запрос
+и имя которое после укажем в контроллерер
+в HTML мы создаем :
+
+<div class="search_box pull-right">
+    <form method="get" action="<?= \yii\helpers\Url::to(['category/search']) ?>">
+        <input type="text" placeholder="Search" name="q">
+    </form>
+</div>
+
+
+Теперь контроллер:
+$q = trim(Yii::$app->request->get('q')); получаем get из input
+
+
+
+public function actionSearch() {
+$q = trim(Yii::$app->request->get('q'));
+$this->setMeta('E-SHOPPER | Поиск: ' . $q);
+if (!$q)
+return $this->render('search');
+$query = Product::find()->where(['like', 'name', $q]);
+$pages = new Pagination(['totalCount' => $query->count(), 'pageSize' => 3, 'forcePageParam' => false, 'pageSizeParam' => false]);
+$products = $query->offset($pages->offset)->limit($pages->limit)->all();
+return $this->render('search', compact('products', 'pages', 'q'));
+}

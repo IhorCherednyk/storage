@@ -1,14 +1,13 @@
 <?php
 
-/* @var $this \yii\web\View */
+/* @var $this View */
 /* @var $content string */
 
-use yii\helpers\Html;
-use yii\bootstrap\Nav;
-use yii\bootstrap\NavBar;
-use yii\widgets\Breadcrumbs;
 use app\assets\AppAsset;
 use app\assets\ltAppAsset;
+use yii\helpers\Html;
+use yii\helpers\Url;
+use yii\web\View;
 
 AppAsset::register($this);
 ltAppAsset::register($this);
@@ -70,7 +69,9 @@ ltAppAsset::register($this);
 				<div class="row">
 					<div class="col-sm-4">
 						<div class="logo pull-left">
-							<a href="index.html"><img src="/images/home/logo.png" alt="" /></a>
+                                                    <a href="<?= Url::home()?>">
+                                                        <?= Html::img("@web/images/home/logo.png", ['alt' => 'logo'])?>    
+                                                    </a>
 						</div>
 						<div class="btn-group pull-right">
 							<div class="btn-group">
@@ -147,9 +148,11 @@ ltAppAsset::register($this);
 						</div>
 					</div>
 					<div class="col-sm-3">
-						<div class="search_box pull-right">
-							<input type="text" placeholder="Search"/>
-						</div>
+                                            <div class="search_box pull-right">
+                                                <form method="get" action="<?= \yii\helpers\Url::to(['category/search']) ?>">
+                                                    <input type="text" placeholder="Search" name="q">
+                                                </form>
+                                            </div>
 					</div>
 				</div>
 			</div>

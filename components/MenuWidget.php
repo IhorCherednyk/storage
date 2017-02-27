@@ -4,7 +4,7 @@ namespace app\components;
 
 use yii\base\Widget;
 use app\models\Category; // покдлючаем модель таблицы для выборки данных
-
+use Yii;
 class MenuWidget extends Widget {
 
     public $tpl; // указываем тот ключ который мы указуем в виде  <?= MenuWidget::widget(['tpl' => 'menu'])
@@ -21,14 +21,19 @@ class MenuWidget extends Widget {
     }
 
     public function run() {
-        $this->data = Category::find()->indexBy('id')->asArray()->all(); // sql запрос к базе  запрос гвороит (верни мне массивы массивов где (indexBy('id') - ключи масива будут совпадать с индикаторами id ))
-       
-        $this->tree = $this->getTree(); // создаем дерево масивов
         
+        $menu = Yii::$app->cache->get('menu');
+        if($menu) return $menu;
+        
+        $this->data = Category::find()->indexBy('id')->asArray()->all(); // sql запрос к базе  запрос гвороит (верни мне массивы массивов где (indexBy('id') - ключи масива будут совпадать с индикаторами id ))
+        $this->tree = $this->getTree(); // создаем дерево масивов
         $this->menuHtml = $this->getMenuHtml($this->tree);
         
+        Yii::$app->cache->set('menu', $this->menuHtml, 60);
         return $this->menuHtml; // Поитогу возвращаем то что нам пришло <?= MenuWidget::widget(['tpl' => 'blabla'])
         
+        
+
     }
 
     protected function getTree() { // Функция берет и свзяывает как дерево данные которые мы получили из таблицы 
@@ -38,11 +43,11 @@ class MenuWidget extends Widget {
             if (!$node['parent_id']){
                 $tree[$id] = &$node;
                 
+                
             }
             else
                 $this->data[$node['parent_id']]['childs'][$node['id']] = &$node;
         }
-       
         return $tree;
     }
 
