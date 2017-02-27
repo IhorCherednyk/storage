@@ -464,3 +464,80 @@ $pages = new Pagination(['totalCount' => $query->count(), 'pageSize' => 3, 'forc
 $products = $query->offset($pages->offset)->limit($pages->limit)->all();
 return $this->render('search', compact('products', 'pages', 'q'));
 }
+
+____________________________________________________________________________________________________________________________________________________________
+
+Корзина
+
+Первым делом для корзины мы создаем модель,контроллер
+
+
+
+для того что бы корзина работала с помощью AJAX мы заходим в js и создаем скрипт 
+    $('.add-to-cart').on('click', function (e) { / мы вешаем действин на нашу кнопку добавления в корзину скпит аякса
+        e.preventDefault(); / отменяем переход по ссылки
+        var id = $(this).data('id'); / записуем в переменную в виде дата атрибут   <a href="<?= \yii\helpers\Url::to(['cart/add', 'id' => $hit->id]) ?>" data-id="<?= $hit->id ?>" class="btn btn-default add-to-cart">
+        $.ajax({
+            url: '/cart/add', / говорим куда будет вести наш url
+            data: {id: id}, / данные которые передаем в наш контроллер
+            type: 'GET', / как данные пойдут на сервер
+            success: function(res){ / приниимаем ответ
+                if(!res) alert('Ошибка!'); 
+                console.log(res); // получаем ответ (то что выполняет контроллер)
+                //showCart(res);
+            },
+            error: function(){ 
+                alert('Error!');
+            }
+        });
+    });
+
+теперь при клике на ссылку мы будем вызывать аякс запрос который будет передовать данные ид в наш контроллер в контролере
+
+даллее в контроллере
+создем  контроллер
+
+<?php
+
+namespace app\controllers;
+
+use app\models\Product; // наследуем продукты 
+use app\models\Cart;// наследуем модель корзины
+use Yii;
+
+/* Array
+  (
+  [1] => Array
+  (
+  [qty] => QTY
+  [name] => NAME
+  [price] => PRICE
+  [img] => IMG
+  )
+  [10] => Array
+  (
+  [qty] => QTY
+  [name] => NAME
+  [price] => PRICE
+  [img] => IMG
+  )
+  )
+  [qty] => QTY,
+  [sum] => SUM
+  ); */
+
+class CartController extends AppController {
+
+    public function actionAdd() {
+        $id = Yii::$app->request->get('id'); // получаем id через ajax
+        
+        $product = Product::findOne($id); // дальше проверяем на наличие в бд соответствующего ид продукта
+        if (empty($product)) // если продукт не существует ничего не делаем 
+            return false;
+        $session = Yii::$app->session;
+        $session->open();
+        $cart = new Cart();
+        $cart->addToCart($product);
+    }
+
+}
