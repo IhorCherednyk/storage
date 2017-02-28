@@ -17,8 +17,8 @@ $(document).ready(function () {
         var id = $(this).data('id');
         $.ajax({
             url: '/cart/add',
-            data: {id: id},
-            type: 'GET',
+            data: {id: id, _csrf: yii.getCsrfToken()},
+            type: 'POST',
             success: function (res) {
                 if (!res)
                     alert('Ошибка!');

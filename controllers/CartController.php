@@ -1,5 +1,12 @@
 <?php
 
+/**
+ * Created by PhpStorm.
+ * User: Andrey
+ * Date: 14.05.2016
+ * Time: 10:37
+ */
+
 namespace app\controllers;
 
 use app\models\Product;
@@ -30,15 +37,17 @@ use Yii;
 class CartController extends AppController {
 
     public function actionAdd() {
-        $id = Yii::$app->request->get('id');
-        
+        Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+        $id = Yii::$app->request->post('id');
         $product = Product::findOne($id);
         if (empty($product))
             return false;
-        $session = Yii::$app->session;
-        $session->open();
+        
+//        \Yii::$app->session->remove('_CART_');
         $cart = new Cart();
         $cart->addToCart($product);
+        
+        return \Yii::$app->session->get('_CART_', []);
     }
 
 }

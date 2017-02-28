@@ -479,10 +479,10 @@ ________________________________________________________________________________
         var id = $(this).data('id'); / записуем в переменную в виде дата атрибут   <a href="<?= \yii\helpers\Url::to(['cart/add', 'id' => $hit->id]) ?>" data-id="<?= $hit->id ?>" class="btn btn-default add-to-cart">
         $.ajax({
             url: '/cart/add', / говорим куда будет вести наш url
-            data: {id: id}, / данные которые передаем в наш контроллер
+            data: {id: id, _csrf: yii.getCsrfToken()}, / данные которые передаем в наш контроллер, обязательно надо передавать токен
             type: 'GET', / как данные пойдут на сервер
             success: function(res){ / приниимаем ответ
-                if(!res) alert('Ошибка!'); 
+                if(!res) alert('Ошибка!');  // если получаем пустую строку 
                 console.log(res); // получаем ответ (то что выполняет контроллер)
                 //showCart(res);
             },
@@ -534,10 +534,12 @@ class CartController extends AppController {
         $product = Product::findOne($id); // дальше проверяем на наличие в бд соответствующего ид продукта
         if (empty($product)) // если продукт не существует ничего не делаем 
             return false;
-        $session = Yii::$app->session;
-        $session->open();
-        $cart = new Cart();
-        $cart->addToCart($product);
+        $session = Yii::$app->session; /помещаем обьект сессии в переменную
+        $session->open(); // открываем сессию
+        $cart = new Cart(); // создаем экземпляр модели  класса Cart
+        $cart->addToCart($product); // и обращаемься к ее методу 
     }
 
 }
+ После того как мы получаем данные в контроллер и создали модели корзины реализуем метод иодели корзины 
+
