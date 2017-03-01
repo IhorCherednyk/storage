@@ -15,10 +15,10 @@ class Cart extends ActiveRecord{
         
         $cart = \Yii::$app->session->get('_CART_', []);
         
-        if(isset($cart[$product->id])){
-            $cart[$product->id]['qty'] += $qty;
+        if(isset($cart['cart'][$product->id])){
+            $cart['cart'][$product->id]['qty'] += $qty;
         }else{
-            $cart[$product->id] = [
+            $cart['cart'][$product->id] = [
                 'qty' => $qty,
                 'name' => $product->name,
                 'price' => $product->price,

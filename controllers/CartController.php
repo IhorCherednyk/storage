@@ -37,28 +37,31 @@ use Yii;
 class CartController extends AppController {
 
     public function actionAdd() {
+//        \Yii::$app->session->remove('_CART_');
         Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
         $id = Yii::$app->request->post('id');
         $product = Product::findOne($id);
         if (empty($product))
             return false;
 
-//        \Yii::$app->session->remove('_CART_');
         $cart = new Cart();
         $cart->addToCart($product);
 
-//        $data = \Yii::$app->session->get('_CART_', []);
-        
-        return true;
-        
-//        $this->layout = false;
-//        return $this->render('cart-modal', compact('data'));
-    }
-
-    public function actionCart() {
-         
         $data = \Yii::$app->session->get('_CART_', []);
+        $this->layout = false;
         return $this->render('cart-modal', compact('data'));
     }
 
+    public function actionClear() {
+        \Yii::$app->session->remove('_CART_');
+        $data = \Yii::$app->session->get('_CART_', []);
+        $this->layout = false;
+        return $this->render('cart-modal', compact('data'));
+    }
+
+//    public function actionCart() {
+//         
+//        $data = \Yii::$app->session->get('_CART_', []);
+//        return $this->render('cart-modal', compact('data'));
+//    }
 }

@@ -12,8 +12,25 @@ $(document).ready(function () {
         speed: 300,
     });
     
+    function showCart(cart){
+        $('#cart .modal-body').html(cart);
+        $('#cart').modal();
+    }
     
-    
+    $('#clearCart').click(function(){
+        $.ajax({
+            url: '/cart/clear',
+            type: 'GET',
+            success: function (res) {
+                if (!res)
+                    alert('Ошибка!');
+                showCart(res);
+            },
+            error: function () {
+                alert('Error!');
+            }
+        });
+    });
     $('.add-to-cart').on('click', function (e) {
         e.preventDefault();
         var id = $(this).data('id');
@@ -25,8 +42,8 @@ $(document).ready(function () {
                 if (!res)
                     console.log('Ошибка!');
                 else {
-                    console.log('Заебок!');
-                    $('#modal').html(res);
+                    showCart(res);
+//                console.log(res);
                 }
                 
             },

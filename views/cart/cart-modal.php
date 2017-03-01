@@ -11,7 +11,8 @@
                 </tr>
             </thead>
             <tbody>
-            <?php foreach($data as $id => $item):?>
+                
+            <?php foreach($data['cart'] as $id => $item):?>
                 <tr>
                     <td><?= $item['img']?></td>
                     <td><?= $item['name']?></td>
