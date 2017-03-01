@@ -28,7 +28,8 @@ class Cart extends ActiveRecord{
         $cart['cart.qty'] = isset($cart['cart.qty']) ? $cart['cart.qty'] + $qty : $qty;
         $cart['cart.sum'] = isset($cart['cart.sum']) ? $cart['cart.sum'] + $qty * $product->price : $qty * $product->price;
         
-        $cart = \Yii::$app->session->set('_CART_', $cart);
+                $cart = \Yii::$app->session->set('_CART_', $cart);
+
     }
 
 } 

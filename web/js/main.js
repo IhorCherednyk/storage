@@ -11,7 +11,9 @@ $(document).ready(function () {
     $('.catalog').dcAccordion({
         speed: 300,
     });
-
+    
+    
+    
     $('.add-to-cart').on('click', function (e) {
         e.preventDefault();
         var id = $(this).data('id');
@@ -21,16 +23,20 @@ $(document).ready(function () {
             type: 'POST',
             success: function (res) {
                 if (!res)
-                    alert('Ошибка!');
-                console.log(res);
-                //showCart(res);
+                    console.log('Ошибка!');
+                else {
+                    console.log('Заебок!');
+                    $('#modal').html(res);
+                }
+                
             },
             error: function () {
                 alert('Error!');
             }
         });
     });
-
+    
+    
     $(function () {
         $.scrollUp({
             scrollName: 'scrollUp', // Element ID

@@ -161,6 +161,10 @@ ltAppAsset::register($this);
 	
         <?= $content ;?>
 	
+        
+        <div id="modal">
+            
+        </div>
 	<footer id="footer"><!--Footer-->
 		<div class="footer-top">
 			<div class="container">

@@ -42,12 +42,23 @@ class CartController extends AppController {
         $product = Product::findOne($id);
         if (empty($product))
             return false;
-        
+
 //        \Yii::$app->session->remove('_CART_');
         $cart = new Cart();
         $cart->addToCart($product);
+
+//        $data = \Yii::$app->session->get('_CART_', []);
         
-        return \Yii::$app->session->get('_CART_', []);
+        return true;
+        
+//        $this->layout = false;
+//        return $this->render('cart-modal', compact('data'));
+    }
+
+    public function actionCart() {
+         
+        $data = \Yii::$app->session->get('_CART_', []);
+        return $this->render('cart-modal', compact('data'));
     }
 
 }
