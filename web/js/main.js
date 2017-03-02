@@ -12,6 +12,21 @@ $(document).ready(function () {
         speed: 300,
     });
     
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     function showCart(cart){
         $('#cart .modal-body').html(cart);
         $('#cart').modal();
@@ -31,6 +46,40 @@ $(document).ready(function () {
             }
         });
     });
+    
+    $('#cart .modal-body').on('click', '.del-item', function(){
+        var id = $(this).data('id');
+        
+        $.ajax({
+            url: '/cart/del-item',
+            data: {id: id},
+            type: 'POST',
+            success: function(res){
+                if(!res) alert('Ошибка!');
+                showCart(res);
+//                   console.log(res)
+            },
+            error: function(){
+                alert('Error!');
+            }
+        });
+    });
+    
+    $('#get-cart').click(function(){
+        $.ajax({
+            url: '/cart/show',
+            type: 'GET',
+            success: function(res){
+                if(!res) alert('Ошибка!');
+                showCart(res);
+            },
+            error: function(){
+                alert('Error!');
+            }
+        });
+        return false;
+    })
+    
     $('.add-to-cart').on('click', function (e) {
         e.preventDefault();
         var id = $(this).data('id');
@@ -52,6 +101,17 @@ $(document).ready(function () {
             }
         });
     });
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     
     
     $(function () {

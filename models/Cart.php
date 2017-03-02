@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Created by PhpStorm.
  * User: Andrey
@@ -7,17 +8,18 @@
  */
 
 namespace app\models;
+
 use yii\db\ActiveRecord;
 
-class Cart extends ActiveRecord{
+class Cart extends ActiveRecord {
 
-    public function addToCart($product, $qty = 1){
-        
+    public function addToCart($product, $qty = 1) {
+
         $cart = \Yii::$app->session->get('_CART_', []);
-        
-        if(isset($cart['cart'][$product->id])){
+
+        if (isset($cart['cart'][$product->id])) {
             $cart['cart'][$product->id]['qty'] += $qty;
-        }else{
+        } else {
             $cart['cart'][$product->id] = [
                 'qty' => $qty,
                 'name' => $product->name,
@@ -25,11 +27,45 @@ class Cart extends ActiveRecord{
                 'img' => $product->img
             ];
         }
-        $cart['cart.qty'] = isset($cart['cart.qty']) ? $cart['cart.qty'] + $qty : $qty;
-        $cart['cart.sum'] = isset($cart['cart.sum']) ? $cart['cart.sum'] + $qty * $product->price : $qty * $product->price;
         
-                $cart = \Yii::$app->session->set('_CART_', $cart);
-
+        $cart = \Yii::$app->session->set('_CART_', $cart);
+    }
+    
+    public function getTotalPrice() {
+        $total = 0;
+        $data = \Yii::$app->session->get('_CART_', []);
+        foreach ($data['cart'] as $id => $item) {
+            $total += $item['price'];
+        }
+        
+        return $total;
+    }
+    public function getClear(){
+        \Yii::$app->session->remove('_CART_');
+        return true;
+    }
+    public function getItems(){
+        return \Yii::$app->session->get('_CART_', []);
+    }
+    
+    public function getTotalCount() {
+        $total = 0;
+        $data = \Yii::$app->session->get('_CART_', []);
+        foreach ($data['cart'] as $item) {
+            $total += $item['qty'];
+        }
+        
+        return $total;
+    }
+    
+    public function recalc($id) {
+        $data = \Yii::$app->session->get('_CART_', []);
+        
+        if (!isset($data['cart'][$id]))
+            return false;
+        unset($data['cart'][$id]); 
+        $data = \Yii::$app->session->set('_CART_', $data);
+   
     }
 
-} 
+}

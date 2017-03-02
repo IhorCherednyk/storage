@@ -1,4 +1,6 @@
+
 <?php if(!empty($data)): ?>
+
     <div class="table-responsive">
         <table class="table table-hover table-striped">
             <thead>
@@ -13,21 +15,22 @@
             <tbody>
                 
             <?php foreach($data['cart'] as $id => $item):?>
+                    
                 <tr>
                     <td><?= $item['img']?></td>
                     <td><?= $item['name']?></td>
                     <td><?= $item['qty']?></td>
                     <td><?= $item['price']?></td>
-                    <td><span class="glyphicon glyphicon-remove text-danger del-item" aria-hidden="true"></span></td>
+                    <td><span data-id="<?= $id?>" class="glyphicon glyphicon-remove text-danger del-item" aria-hidden="true"></span></td>
                 </tr>
             <?php endforeach?>
                 <tr>
                     <td colspan="4">Итого: </td>
-                    <td><?= $data['cart.qty']?></td>
+                    <td><?= $totalCount ?></td>
                 </tr>
                 <tr>
                     <td colspan="4">На сумму: </td>
-                    <td><?= $data['cart.sum']?></td>
+                    <td><?= $totalSum ?></td>
                 </tr>
             </tbody>
         </table>
